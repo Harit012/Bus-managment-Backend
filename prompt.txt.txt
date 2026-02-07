@@ -1,0 +1,46 @@
+i want a command to give to antigravity ide for 
+
+ create a bus management system in node js with mvc structure using express , postgresql , cron , socketio , 
+
+requirements goes like 
+- there are 50 buses 
+- distributed accross 10 routes(might be in between 0 to 10)
+- each bus goss to rest status after completing 3 rounds accross any path in one day
+- there are drivers with shift of 8 hours or 480 minutes 
+- each route will have its duration(will take and store it in minutes) for complete.
+- after 8 hours of work each driver should go to off-duty status && they must not work more than 8 hours each day.
+- there is an admin user which can control and change distribution manually like 
+send buses to maintenance mode and set its status from maintenance to available & from rest to available also
+-when ever any bus goes to rest we need to reassign new bus to that driver on the path of that bus 
+
+- admin should see the datails like which bus is running on which route with which driver 
+- howmany drivers & busses are available 
+-howmany busses are under maintainence and how many are at rest 
+-admin should also change its status to available if its under maintainence or rest status
+-admin should have a history of each entity like which buses with which driver performed trips accross the route 
+-a perticular bus ran on this route and  then another with what drivers  and record for driver's activity too 
+
+what i suggest :- 
+
+we will setup a 5 minutes cron over route enitiy  for check  drivers and buses 
+if we found any availability we will assign required entity 
+create two functions for finding & assigning drivers and buses whichever required 
+if that check returns any requirements we will assign with this function.
+
+
+what check should see :- 
+
+route :- is there minimum and maximum one bus running on each routes if yes then the bus status must not be maintenance if its maintenance then replace that bus with another bus.
+
+driver :- is driver availability time is equal or greater then route's duration only then driver should assign to that route also driver must have available status 
+
+bus :- bus should not have rest or maintenance  or running status it must have available status to get assigned 
+when a bus goes to maintenance or rest it should be removed from driver and route table to avoid conflicts 
+if a driver goes off duty it should also be removed from route and bus 
+same goes for route when it is completed
+
+we want to store every changes in activity of each entity entity with time stamp to provide proper history for admin dashboard 
+
+ create a backend for this requirements in given technologies and also create a document for showing how flow works .
+
+

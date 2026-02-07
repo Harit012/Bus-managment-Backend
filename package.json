@@ -1,0 +1,38 @@
+{
+  "name": "bus-management-system",
+  "version": "1.0.0",
+  "description": "Backend system for managing bus fleet operations with real-time updates and scheduling",
+  "main": "src/app.js",
+  "scripts": {
+    "start": "node src/app.js",
+    "dev": "nodemon src/app.js",
+    "test": "echo \"No tests specified\" && exit 0",
+    "db:migrate": "psql -U postgres -d bus_management -f src/migrations/001_initial_schema.sql",
+    "db:seed": "psql -U postgres -d bus_management -f src/migrations/002_seed_data.sql",
+    "db:setup": "npm run db:migrate && npm run db:seed"
+  },
+  "keywords": [
+    "bus",
+    "fleet-management",
+    "nodejs",
+    "express",
+    "postgresql",
+    "socket.io",
+    "cron"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "cors": "^2.8.6",
+    "dotenv": "^17.2.4",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "morgan": "^1.10.1",
+    "node-cron": "^4.2.1",
+    "pg": "^8.18.0",
+    "socket.io": "^4.8.3",
+    "uuid": "^13.0.0"
+  }
+}
+

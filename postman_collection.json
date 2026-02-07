@@ -1,0 +1,601 @@
+{
+  "info": {
+    "name": "Bus Management System API",
+    "description": "Complete API collection for Bus Management System",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000"
+    },
+    {
+      "key": "token",
+      "value": ""
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "Health & Info",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/health"
+          }
+        },
+        {
+          "name": "API Info",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin",
+      "item": [
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.data && jsonData.data.token) {",
+                  "    pm.collectionVariables.set('token', jsonData.data.token);",
+                  "    console.log('Token saved to collection variables');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"username\": \"admin\",\n    \"password\": \"admin123\"\n}"
+            },
+            "url": "{{baseUrl}}/api/admin/login"
+          }
+        },
+        {
+          "name": "Dashboard",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/admin/dashboard"
+          }
+        },
+        {
+          "name": "Get All Buses (Admin)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/admin/buses"
+          }
+        },
+        {
+          "name": "Get All Drivers (Admin)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/admin/drivers"
+          }
+        },
+        {
+          "name": "Get Active Routes (Admin)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/admin/routes/active"
+          }
+        },
+        {
+          "name": "Send Bus to Maintenance",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/admin/buses/{{busId}}/maintenance"
+          }
+        },
+        {
+          "name": "Set Bus Available from Maintenance",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/admin/buses/{{busId}}/available-from-maintenance"
+          }
+        },
+        {
+          "name": "Set Bus Available from Rest",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/admin/buses/{{busId}}/available-from-rest"
+          }
+        },
+        {
+          "name": "Force Assign Bus to Route",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"routeId\": \"{{routeId}}\",\n    \"busId\": \"{{busId}}\"\n}"
+            },
+            "url": "{{baseUrl}}/api/admin/force-assign/bus"
+          }
+        },
+        {
+          "name": "Force Assign Driver to Route",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"routeId\": \"{{routeId}}\",\n    \"driverId\": \"{{driverId}}\"\n}"
+            },
+            "url": "{{baseUrl}}/api/admin/force-assign/driver"
+          }
+        },
+        {
+          "name": "Auto-Assign to Route",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/admin/auto-assign/{{routeId}}"
+          }
+        },
+        {
+          "name": "Get All Activities",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/activities?limit=50",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "activities"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "50"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Forced Activities",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/admin/activities/forced"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Buses",
+      "item": [
+        {
+          "name": "Get All Buses",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "url": "{{baseUrl}}/api/buses"
+          }
+        },
+        {
+          "name": "Get Bus by ID",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "url": "{{baseUrl}}/api/buses/{{busId}}"
+          }
+        },
+        {
+          "name": "Get Buses by Status",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "url": "{{baseUrl}}/api/buses/status/AVAILABLE"
+          }
+        },
+        {
+          "name": "Get Available Buses",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "url": "{{baseUrl}}/api/buses/available"
+          }
+        },
+        {
+          "name": "Get Bus Stats",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "url": "{{baseUrl}}/api/buses/stats"
+          }
+        },
+        {
+          "name": "Get Bus History",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "url": "{{baseUrl}}/api/buses/{{busId}}/history"
+          }
+        },
+        {
+          "name": "Get Bus Assignments",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "url": "{{baseUrl}}/api/buses/{{busId}}/assignments"
+          }
+        },
+        {
+          "name": "Create Bus",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"busNumber\": \"BUS-051\"\n}"
+            },
+            "url": "{{baseUrl}}/api/buses"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Drivers",
+      "item": [
+        {
+          "name": "Get All Drivers",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "url": "{{baseUrl}}/api/drivers"
+          }
+        },
+        {
+          "name": "Get Driver by ID",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "url": "{{baseUrl}}/api/drivers/{{driverId}}"
+          }
+        },
+        {
+          "name": "Get Drivers by Status",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "url": "{{baseUrl}}/api/drivers/status/AVAILABLE"
+          }
+        },
+        {
+          "name": "Get Available Drivers",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/drivers/available?duration=60",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "drivers", "available"],
+              "query": [
+                {
+                  "key": "duration",
+                  "value": "60"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Driver Stats",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "url": "{{baseUrl}}/api/drivers/stats"
+          }
+        },
+        {
+          "name": "Get Driver History",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "url": "{{baseUrl}}/api/drivers/{{driverId}}/history"
+          }
+        },
+        {
+          "name": "Get Driver Assignments",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "url": "{{baseUrl}}/api/drivers/{{driverId}}/assignments"
+          }
+        },
+        {
+          "name": "Create Driver",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"New Driver\",\n    \"employeeId\": \"DRV-021\",\n    \"licenseNumber\": \"DL-021234\",\n    \"phone\": \"+1-555-0121\"\n}"
+            },
+            "url": "{{baseUrl}}/api/drivers"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Routes",
+      "item": [
+        {
+          "name": "Get All Routes",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "url": "{{baseUrl}}/api/routes"
+          }
+        },
+        {
+          "name": "Get Route by ID",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "url": "{{baseUrl}}/api/routes/{{routeId}}"
+          }
+        },
+        {
+          "name": "Get Routes by Status",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "url": "{{baseUrl}}/api/routes/status/ACTIVE"
+          }
+        },
+        {
+          "name": "Get Active Routes",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "url": "{{baseUrl}}/api/routes/active"
+          }
+        },
+        {
+          "name": "Get Route Stats",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "url": "{{baseUrl}}/api/routes/stats"
+          }
+        },
+        {
+          "name": "Get Route History",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "url": "{{baseUrl}}/api/routes/{{routeId}}/history"
+          }
+        },
+        {
+          "name": "Get Route Assignments",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "url": "{{baseUrl}}/api/routes/{{routeId}}/assignments"
+          }
+        },
+        {
+          "name": "Create Route",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"New Express Route\",\n    \"startPoint\": \"Station A\",\n    \"endPoint\": \"Station B\",\n    \"durationMinutes\": 45\n}"
+            },
+            "url": "{{baseUrl}}/api/routes"
+          }
+        },
+        {
+          "name": "Update Route",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Updated Route Name\",\n    \"durationMinutes\": 50\n}"
+            },
+            "url": "{{baseUrl}}/api/routes/{{routeId}}"
+          }
+        },
+        {
+          "name": "Complete Route",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/routes/{{routeId}}/complete"
+          }
+        },
+        {
+          "name": "Reactivate Route",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/routes/{{routeId}}/reactivate"
+          }
+        },
+        {
+          "name": "Delete Route",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/routes/{{routeId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "History & Activities",
+      "item": [
+        {
+          "name": "Get All Activities",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/activities?limit=100",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "activities"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "100"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Activities by Type",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "url": "{{baseUrl}}/api/activities/type/bus"
+          }
+        },
+        {
+          "name": "Get Admin Forced Activities",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "url": "{{baseUrl}}/api/activities/admin-forced"
+          }
+        },
+        {
+          "name": "Get Bus History",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "url": "{{baseUrl}}/api/history/bus/{{busId}}"
+          }
+        },
+        {
+          "name": "Get Driver History",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "url": "{{baseUrl}}/api/history/driver/{{driverId}}"
+          }
+        },
+        {
+          "name": "Get Route History",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "url": "{{baseUrl}}/api/history/route/{{routeId}}"
+          }
+        }
+      ]
+    }
+  ]
+}
