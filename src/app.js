@@ -70,6 +70,17 @@ server.listen(PORT, () => {
     // Start cron scheduler
     Scheduler.start();
     logger.info(`⏰ Cron scheduler started (${config.CRON_SCHEDULE})`);
+
+    // Run initial assignment immediately (with small delay for DB readiness)
+    setTimeout(async () => {
+        try {
+            logger.info('🚀 Running initial auto-assignment on startup...');
+            await Scheduler.triggerManualRun();
+            logger.info('✅ Initial auto-assignment completed');
+        } catch (error) {
+            logger.error('Initial auto-assignment failed:', { error: error.message });
+        }
+    }, 5000);
 });
 
 // Graceful shutdown

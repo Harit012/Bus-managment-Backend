@@ -29,6 +29,7 @@ module.exports = {
     MAX_DRIVER_MINUTES_PER_DAY: 480, // 8 hours
   },
 
-  // Cron schedule (every 5 minutes)
-  CRON_SCHEDULE: '*/5 * * * *',
+  // Cron schedule (every 2 minutes)
+  CRON_SCHEDULE: '*/2 * * * *',
+  CRON_INTERVAL_MINUTES: 2,
 };

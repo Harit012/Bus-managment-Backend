@@ -9,6 +9,7 @@ const logger = require('../utils/logger');
  */
 class Scheduler {
     static cronJob = null;
+    static isFirstRun = true;
 
     /**
      * Start the cron scheduler
@@ -56,8 +57,13 @@ class Scheduler {
             // Step 1: Reset daily counters if needed
             await this.resetDailyCounters();
 
-            // Step 2: Update worked minutes for running drivers (every 5 min)
-            await this.updateRunningDriversWorkedTime();
+            // Step 2: Update worked minutes for running drivers (skip on first run)
+            if (!this.isFirstRun) {
+                await this.updateRunningDriversWorkedTime();
+            } else {
+                this.isFirstRun = false;
+                logger.cron('Skipping driver time update on first run (drivers just assigned)');
+            }
 
             // Step 3: Reactivate COMPLETED routes
             await this.reactivateCompletedRoutes();
@@ -110,7 +116,7 @@ class Scheduler {
      */
     static async updateRunningDriversWorkedTime() {
         const Driver = require('../models/Driver');
-        const CRON_INTERVAL_MINUTES = 5;
+        const CRON_INTERVAL_MINUTES = config.CRON_INTERVAL_MINUTES;
 
         // Find all running drivers
         const runningDrivers = await Driver.findByStatus(DRIVER_STATUS.RUNNING);
@@ -130,6 +136,13 @@ class Scheduler {
                 await Driver.updateStatus(driver.id, DRIVER_STATUS.OFF_DUTY);
             }
         }
+
+        // Emit driver update event so frontend refreshes in real-time
+        emitToAdmin(SOCKET_EVENTS.DRIVER_STATUS_CHANGE, {
+            action: 'worked_time_updated',
+            driversUpdated: runningDrivers.length,
+            reason: 'cron_update',
+        });
     }
 
     /**
@@ -186,7 +199,7 @@ class Scheduler {
     }
 
     /**
-     * Process a single route - ensure it has a valid assignment
+     * Process a single route - ensure it has a valid assignment and auto-complete if duration elapsed
      */
     static async processRoute(route) {
         const Bus = require('../models/Bus');
@@ -213,6 +226,83 @@ class Scheduler {
             }
 
             return result;
+        }
+
+        // Check if route duration has elapsed - auto-complete the round
+        const elapsedMs = Date.now() - new Date(assignment.started_at).getTime();
+        const elapsedMinutes = elapsedMs / (1000 * 60);
+
+        if (elapsedMinutes >= route.duration_minutes) {
+            logger.cron(`Route ${route.name} duration (${route.duration_minutes} min) elapsed (${Math.round(elapsedMinutes)} min), auto-completing round`);
+
+            try {
+                const bus = assignment.bus_id ? await Bus.findById(assignment.bus_id) : null;
+                const driver = assignment.driver_id ? await Driver.findById(assignment.driver_id) : null;
+
+                // End the current assignment
+                await RouteAssignment.end(assignment.id);
+
+                // Add route duration to driver worked time
+                if (driver) {
+                    await Driver.addWorkedMinutes(driver.id, route.duration_minutes);
+                    const updatedDriver = await Driver.findById(driver.id);
+
+                    if (updatedDriver.worked_minutes_today >= config.RULES.MAX_DRIVER_MINUTES_PER_DAY) {
+                        await Driver.updateStatus(driver.id, DRIVER_STATUS.OFF_DUTY);
+                        logger.cron(`Driver ${driver.name} went OFF_DUTY (${updatedDriver.worked_minutes_today} min)`);
+                    } else {
+                        await Driver.updateStatus(driver.id, DRIVER_STATUS.AVAILABLE);
+                    }
+                }
+
+                // Check if bus should go to REST (based on rounds_today which was incremented when assigned)
+                if (bus) {
+                    if (bus.rounds_today >= config.RULES.MAX_ROUNDS_PER_DAY) {
+                        await Bus.updateStatus(bus.id, BUS_STATUS.REST);
+                        logger.cron(`Bus ${bus.bus_number} sent to REST (${bus.rounds_today} rounds)`);
+                    } else {
+                        await Bus.updateStatus(bus.id, BUS_STATUS.AVAILABLE);
+                    }
+                }
+
+                // Emit socket events for live updates
+                emitToAdmin(SOCKET_EVENTS.ROUTE_ASSIGNMENT_CHANGE, {
+                    action: 'round_completed',
+                    routeId: route.id,
+                    routeName: route.name,
+                    busRounds: bus ? bus.rounds_today : 0,
+                    driverWorked: driver ? driver.worked_minutes_today : 0,
+                });
+
+                emitToAdmin(SOCKET_EVENTS.BUS_STATUS_CHANGE, {
+                    action: 'round_completed',
+                    routeId: route.id,
+                    routeName: route.name,
+                    reason: 'auto_complete',
+                });
+
+                emitToAdmin(SOCKET_EVENTS.DRIVER_STATUS_CHANGE, {
+                    action: 'round_completed',
+                    routeId: route.id,
+                    routeName: route.name,
+                    reason: 'auto_complete',
+                });
+
+                // Re-assign a new bus and driver for the next round
+                const reassignResult = await AssignmentService.assignDriverAndBusToRoute(route.id);
+                if (reassignResult.success) {
+                    logger.cron(`Re-assigned new round for ${route.name}`);
+                } else {
+                    logger.cron(`Could not re-assign ${route.name}: ${reassignResult.message}`);
+                }
+
+                result.action = 'auto_completed_round';
+                return result;
+            } catch (error) {
+                logger.error(`Failed to auto-complete route ${route.name}:`, { error: error.message });
+                result.action = 'auto_complete_failed';
+                return result;
+            }
         }
 
         // Check if assignment is still valid

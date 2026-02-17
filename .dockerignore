@@ -1,0 +1,11 @@
+node_modules
+npm-debug.log
+.env
+.git
+.gitignore
+docker-compose.yml
+*.md
+postman_collection.json
+setup.bat
+setup.sh
+trigger_cron.js

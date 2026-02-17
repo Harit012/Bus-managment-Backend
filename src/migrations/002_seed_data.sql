@@ -64,8 +64,8 @@ INSERT INTO buses (bus_number, status) VALUES
 ('BUS-050', 'AVAILABLE');
 
 -- Set some buses in different statuses for testing
-UPDATE buses SET status = 'MAINTENANCE' WHERE bus_number IN ('BUS-048', 'BUS-049');
-UPDATE buses SET status = 'REST', rounds_today = 3 WHERE bus_number = 'BUS-050';
+-- UPDATE buses SET status = 'MAINTENANCE' WHERE bus_number IN ('BUS-048', 'BUS-049');
+-- UPDATE buses SET status = 'REST', rounds_today = 3 WHERE bus_number = 'BUS-050';
 
 -- ================================
 -- SEED 20 DRIVERS
@@ -93,22 +93,22 @@ INSERT INTO drivers (name, employee_id, license_number, status, phone) VALUES
 ('Stephanie Lewis', 'DRV-020', 'DL-020123', 'AVAILABLE', '+1-555-0120');
 
 -- Set one driver as OFF_DUTY for testing
-UPDATE drivers SET status = 'OFF_DUTY', worked_minutes_today = 480 WHERE employee_id = 'DRV-020';
+-- UPDATE drivers SET status = 'OFF_DUTY', worked_minutes_today = 480 WHERE employee_id = 'DRV-020';
 
 -- ================================
 -- SEED 10 ROUTES
 -- ================================
 INSERT INTO routes (name, start_point, end_point, duration_minutes, status) VALUES
-('Downtown Express', 'Central Station', 'Downtown Mall', 45, 'ACTIVE'),
-('Airport Shuttle', 'City Center', 'International Airport', 60, 'ACTIVE'),
-('University Line', 'North Terminal', 'State University', 30, 'ACTIVE'),
-('Industrial Route', 'East Hub', 'Industrial Park', 50, 'ACTIVE'),
-('Coastal Drive', 'Harbor Point', 'Beach Resort', 75, 'ACTIVE'),
-('Suburban Connect', 'Metro Station', 'Suburban Plaza', 40, 'ACTIVE'),
-('Hospital Express', 'Central Station', 'Medical Center', 25, 'ACTIVE'),
-('Shopping Circuit', 'West Terminal', 'Shopping District', 35, 'ACTIVE'),
-('Stadium Route', 'Sports Complex', 'City Stadium', 55, 'COMPLETED'),
-('Night Service', 'Downtown', 'Residential Area', 65, 'COMPLETED');
+('Downtown Express', 'Central Station', 'Downtown Mall', 5, 'ACTIVE'),
+('Airport Shuttle', 'City Center', 'International Airport', 7, 'ACTIVE'),
+('University Line', 'North Terminal', 'State University', 3, 'ACTIVE'),
+('Industrial Route', 'East Hub', 'Industrial Park', 5, 'ACTIVE'),
+('Coastal Drive', 'Harbor Point', 'Beach Resort', 10, 'ACTIVE'),
+('Suburban Connect', 'Metro Station', 'Suburban Plaza', 8, 'ACTIVE'),
+('Hospital Express', 'Central Station', 'Medical Center', 20, 'ACTIVE'),
+('Shopping Circuit', 'West Terminal', 'Shopping District', 3, 'ACTIVE'),
+('Stadium Route', 'Sports Complex', 'City Stadium', 9, 'ACTIVE'),
+('Night Service', 'Downtown', 'Residential Area', 11, 'ACTIVE');
 
 -- ================================
 -- VERIFICATION QUERY
